@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starter Project</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🥦 Reimagined Octo Broccoli</h1>
+            <p class="subtitle">A Good Starting Project Template</p>
+        </header>
+
+        <main>
+            <section class="welcome">
+                <h2>Welcome to Your Starter Project!</h2>
+                <p>This is a simple, clean starting point for web development projects.</p>
+            </section>
+
+            <section class="features">
+                <h3>Features Included:</h3>
+                <ul>
+                    <li>✅ Simple Node.js HTTP server</li>
+                    <li>✅ Clean project structure</li>
+                    <li>✅ Basic testing with Node.js test runner</li>
+                    <li>✅ Responsive HTML/CSS template</li>
+                    <li>✅ API endpoint example</li>
+                    <li>✅ Documentation and configuration</li>
+                </ul>
+            </section>
+
+            <section class="demo">
+                <h3>Try the API:</h3>
+                <button id="greetBtn" onclick="fetchGreeting()">Get Greeting</button>
+                <div id="result" class="result"></div>
+            </section>
+
+            <section class="getting-started">
+                <h3>Getting Started:</h3>
+                <div class="code-block">
+                    <code>npm start</code> - Start the server<br>
+                    <code>npm test</code> - Run tests<br>
+                    <code>npm run dev</code> - Start with auto-reload
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Built with ❤️ as a starter template</p>
+        </footer>
+    </div>
+
+    <script>
+        async function fetchGreeting() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Loading...';
+            
+            try {
+                const response = await fetch('/api/greet');
+                const data = await response.json();
+                resultDiv.textContent = `✨ ${data.message}`;
+                resultDiv.style.color = '#28a745';
+            } catch (error) {
+                resultDiv.textContent = '❌ Error fetching greeting';
+                resultDiv.style.color = '#dc3545';
+            }
+        }
+    </script>
+</body>
+</html>
