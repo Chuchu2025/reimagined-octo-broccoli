@@ -19,7 +19,19 @@ class RiskLimit:
             max_position_size: Maximum total position size
             daily_loss_limit: Maximum allowed daily loss
             max_open_positions: Maximum number of open positions
+            
+        Raises:
+            ValueError: If any parameter is not positive
         """
+        if max_trade_size <= 0:
+            raise ValueError("max_trade_size must be positive")
+        if max_position_size <= 0:
+            raise ValueError("max_position_size must be positive")
+        if daily_loss_limit <= 0:
+            raise ValueError("daily_loss_limit must be positive")
+        if max_open_positions <= 0:
+            raise ValueError("max_open_positions must be positive")
+            
         self.max_trade_size = max_trade_size
         self.max_position_size = max_position_size
         self.daily_loss_limit = daily_loss_limit
@@ -94,8 +106,16 @@ class RiskManager:
         Args:
             position_size: Size of the position being closed
             profit_loss: Profit (positive) or loss (negative) from the position
+            
+        Raises:
+            ValueError: If position_size is negative or exceeds current position size
         """
-        self.current_position_size = max(0, self.current_position_size - position_size)
+        if position_size < 0:
+            raise ValueError("position_size cannot be negative")
+        if position_size > self.current_position_size:
+            raise ValueError(f"position_size {position_size} exceeds current position size {self.current_position_size}")
+            
+        self.current_position_size -= position_size
         self.open_positions = max(0, self.open_positions - 1)
         
         if profit_loss < 0:
@@ -112,13 +132,18 @@ class RiskManager:
         Returns:
             dict: Current risk metrics
         """
+        # Calculate utilization percentages, handling potential division by zero
+        # (though RiskLimit validation should prevent zero values)
+        position_util = (self.current_position_size / self.risk_limit.max_position_size * 100) if self.risk_limit.max_position_size > 0 else 0
+        loss_util = (self.daily_loss / self.risk_limit.daily_loss_limit * 100) if self.risk_limit.daily_loss_limit > 0 else 0
+        
         return {
             'current_position_size': self.current_position_size,
             'max_position_size': self.risk_limit.max_position_size,
-            'position_utilization': f"{(self.current_position_size / self.risk_limit.max_position_size * 100):.1f}%",
+            'position_utilization': f"{position_util:.1f}%",
             'daily_loss': self.daily_loss,
             'daily_loss_limit': self.risk_limit.daily_loss_limit,
-            'loss_limit_utilization': f"{(self.daily_loss / self.risk_limit.daily_loss_limit * 100):.1f}%",
+            'loss_limit_utilization': f"{loss_util:.1f}%",
             'open_positions': self.open_positions,
             'max_open_positions': self.risk_limit.max_open_positions
         }

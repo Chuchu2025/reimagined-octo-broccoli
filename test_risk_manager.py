@@ -29,6 +29,17 @@ class TestRiskLimit(unittest.TestCase):
         self.assertEqual(limits.max_position_size, 25000)
         self.assertEqual(limits.daily_loss_limit, 2500)
         self.assertEqual(limits.max_open_positions, 5)
+    
+    def test_invalid_limits(self):
+        """Test that invalid risk limit values raise errors."""
+        with self.assertRaises(ValueError):
+            RiskLimit(max_trade_size=0)
+        with self.assertRaises(ValueError):
+            RiskLimit(max_position_size=-100)
+        with self.assertRaises(ValueError):
+            RiskLimit(daily_loss_limit=0)
+        with self.assertRaises(ValueError):
+            RiskLimit(max_open_positions=-1)
 
 
 class TestRiskManager(unittest.TestCase):
@@ -109,6 +120,16 @@ class TestRiskManager(unittest.TestCase):
         self.manager.execute_trade(500)
         self.manager.close_position(500, -200)
         self.assertEqual(self.manager.daily_loss, 200)
+    
+    def test_close_position_invalid_size(self):
+        """Test that invalid position close sizes are rejected."""
+        self.manager.execute_trade(500)
+        # Try to close more than current position
+        with self.assertRaises(ValueError):
+            self.manager.close_position(600, 0)
+        # Try to close negative size
+        with self.assertRaises(ValueError):
+            self.manager.close_position(-100, 0)
     
     def test_daily_loss_limit(self):
         """Test that daily loss limit prevents trades."""
